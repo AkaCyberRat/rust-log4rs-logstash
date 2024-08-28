@@ -8,8 +8,9 @@ use log::Level as LogLevel;
 use std::collections::HashMap;
 use std::time::Duration;
 
+#[derive(Default)]
 struct AppenderDeserializer {
-    extra_fields: Option<HashMap<String, Value>>
+    extra_fields: Option<HashMap<String, Value>>,
 }
 
 pub trait DeserializersExt {
@@ -41,17 +42,7 @@ pub struct AppenderConfig {
 
 impl AppenderDeserializer {
     fn new(extra_fields: Option<HashMap<String, Value>>) -> Self {
-        Self {
-            extra_fields
-        }
-    }
-}
-
-impl Default for AppenderDeserializer {
-    fn default() -> Self {
-        Self {
-            extra_fields: None
-        }
+        Self { extra_fields }
     }
 }
 
@@ -90,7 +81,7 @@ impl Deserialize for AppenderDeserializer {
 
         let mut extra_fields = self.extra_fields.clone().unwrap_or_default();
         if let Some(config_extra_fields) = config.extra_fields {
-            extra_fields.extend(config_extra_fields);   
+            extra_fields.extend(config_extra_fields);
         }
 
         builder = builder.with_extra_fields(extra_fields);
@@ -109,7 +100,10 @@ pub fn deserializers() -> Deserializers {
 }
 
 /// Register deserializer for logstash appender
-pub fn register_deserializer(deserializers: &mut Deserializers, extra_fields: Option<HashMap<String, Value>>) {
+pub fn register_deserializer(
+    deserializers: &mut Deserializers,
+    extra_fields: Option<HashMap<String, Value>>,
+) {
     deserializers.insert("logstash", AppenderDeserializer::new(extra_fields));
 }
 
