@@ -5,6 +5,7 @@ use serde_json::Value;
 use crate::appender::AppenderBuilder;
 use anyhow::Result as AnyResult;
 use log::Level as LogLevel;
+use qoollo_logstash_rs::event::TimePrecision;
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -38,6 +39,7 @@ pub struct AppenderConfig {
     error_period: Option<Duration>,
     extra_fields: Option<HashMap<String, Value>>,
     log_queue_len: Option<usize>,
+    time_precision: Option<TimePrecision>,
 }
 
 impl AppenderDeserializer {
@@ -77,6 +79,9 @@ impl Deserialize for AppenderDeserializer {
         }
         if let Some(log_queue_len) = config.log_queue_len {
             builder = builder.with_log_queue_len(log_queue_len);
+        }
+        if let Some(precision) = config.time_precision {
+            builder = builder.with_timestamp_precision(precision);
         }
 
         let mut extra_fields = self.extra_fields.clone().unwrap_or_default();
